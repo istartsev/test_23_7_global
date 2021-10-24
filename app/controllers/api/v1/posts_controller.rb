@@ -1,8 +1,26 @@
-class Api::V1::PostsController < ApplicationController
+require 'json'
 
+class Api::V1::PostsController < ApplicationController
   # GET /posts
   def index
-    render json: Post.all
+    user_id = params[:user_id]
+    if user_id.nil?
+      render json: Post.all
+      return
+    end
+    @posts = Post.all
+    resp = []
+    @user = User.find_by_id(user_id)
+    @posts.each do |p| resp <<
+      {
+        'title' => p.title,
+        'body' => p.body,
+        'liked' => @user.likes.where(user_id: user_id, post_id: p.id).first.nil? == false,
+        'likes_count' => p.likes_count,
+        'publication_date' => p.created_at
+      }
+    end
+    render json: resp
   end
 
   def show
@@ -16,13 +34,21 @@ class Api::V1::PostsController < ApplicationController
 
   # POST /posts/:post_id/like
   def like
-    @post = Post.find(params[:post_id])
-    if @post.likes.where(user_id: params[:user_id], post_id: params[:post_id]).empty? == false
+    user = User.find_by_id(params[:user_id])
+    if user.nil?
+      render :json => {:error => "user %d not found" % params[:user_id]}.to_json, status: :bad_request
+      return
+    end
+
+    like = user.likes.where(user_id: user.id, post_id: params[:post_id]).first
+    if like.nil? == false
       render json: @post , status: :ok
       return
     end
 
-    @post.likes.new(user_id: params[:user_id], post_id: params[:post_id])
+    @post = Post.find_by_id(params[:post_id])
+    user.likes.new(user_id: params[:user_id], post_id: params[:post_id])
+    user.save
     @post.likes_count = @post.likes_count + 1
     @post.save
 
@@ -31,12 +57,21 @@ class Api::V1::PostsController < ApplicationController
 
   # DELETE /posts/:post_id/like
   def dislike
-    @post = Post.find(params[:post_id])
-    if @post.likes.where(user_id: params[:user_id], post_id: params[:post_id]).empty?
-      render json: @post, status: :ok
+    user = User.find_by_id(params[:user_id])
+    if user.nil?
+      render :json => {:error => "user %d not found" % params[:user_id]}.to_json, status: :bad_request
+      return
     end
 
-    @post.likes.destroy(user_id: params[:user_id], post_id: params[:post_id])
+    like = user.likes.where(user_id: user.id, post_id: params[:post_id]).first
+    if like.nil?
+      render json: @post , status: :ok
+      return
+    end
+
+    @post = Post.find_by_id(params[:post_id])
+    like.destroy
+    user.save
     @post.likes_count = @post.likes_count - 1
     @post.save
 

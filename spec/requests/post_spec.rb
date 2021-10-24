@@ -17,6 +17,23 @@ describe 'Post API', type: :request do
     expect(JSON.parse(response.body).size).to eq(2)
   end
 
+  it 'return all posts for user with likes' do
+    get '/api/v1/posts?user_id=%d' % [@user1.id]
+
+    expect(response).to have_http_status(:success)
+    expect(JSON.parse(response.body).size).to eq(2)
+
+    post '/api/v1/posts/%d/like?user_id=%d' % [@post1.id, @user1.id]
+
+    get '/api/v1/posts?user_id=%d' % [@user1.id]
+
+    expect(response).to have_http_status(:success)
+    resp = JSON.parse(response.body)
+    expect(resp.size).to eq(2)
+    expect(resp.any? {|post| post['liked']}).to eq(true)
+    expect(resp.count {|post| post['liked']}).to eq(1)
+  end
+
   it 'get post' do
     get '/api/v1/posts/%d' % [@post1.id]
 
@@ -26,7 +43,7 @@ describe 'Post API', type: :request do
     expect(response).to have_http_status(404)
   end
 
-  it 'like posts' do
+  it 'like and dislike posts' do
     post '/api/v1/posts/%d/like?user_id=%d' % [@post1.id, @user2.id]
 
     expect(response).to have_http_status(:success)
@@ -44,7 +61,7 @@ describe 'Post API', type: :request do
     res_json = JSON.parse(response.body)
     expect(res_json['likes_count']).to eq(1)
 
-    # checking that can line a post if it's already liked by another
+    # checking that another user can like a post if it's already liked by another
     post '/api/v1/posts/%d/like?user_id=%d' % [@post1.id, @user1.id]
 
     expect(response).to have_http_status(:success)
@@ -53,6 +70,26 @@ describe 'Post API', type: :request do
     expect(response).to have_http_status(:success)
     res_json = JSON.parse(response.body)
     expect(res_json['likes_count']).to eq(2)
+
+    # check dislikes
+    delete '/api/v1/posts/%d/like?user_id=%d' % [@post1.id, @user1.id]
+
+    expect(response).to have_http_status(:success)
+
+    get '/api/v1/posts/%d' % [@post1.id]
+    expect(response).to have_http_status(:success)
+    res_json = JSON.parse(response.body)
+    expect(res_json['likes_count']).to eq(1)
+
+    # check that a user cannot dislike what is not liked
+    delete '/api/v1/posts/%d/like?user_id=%d' % [@post1.id, @user1.id]
+
+    expect(response).to have_http_status(:success)
+
+    get '/api/v1/posts/%d' % [@post1.id]
+    expect(response).to have_http_status(:success)
+    res_json = JSON.parse(response.body)
+    expect(res_json['likes_count']).to eq(1)
   end
 
 end
