@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include NotDeleted
+
   has_many :posts
   has_many :likes
 
