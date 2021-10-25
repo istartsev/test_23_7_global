@@ -46,7 +46,7 @@ class Api::V1::PostsController < ApplicationController
 
     ActiveRecord::Base.transaction do
       if like.blank?
-        @post.likes.create!(user_id: current_user.id)
+        current_user.likes.create!(post_id: @post.id)
       else
         like.update!(deleted_at: nil)
       end

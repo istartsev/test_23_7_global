@@ -16,7 +16,6 @@ ActiveRecord::Schema.define(version: 2021_10_23_191542) do
     t.integer "user_id"
     t.integer "post_id"
     t.datetime "deleted_at"
-    t.index ["deleted_at"], name: "index_likes_on_deleted_at"
     t.index ["post_id"], name: "index_likes_on_post_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
   end

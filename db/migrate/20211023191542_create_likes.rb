@@ -3,7 +3,7 @@ class CreateLikes < ActiveRecord::Migration[6.1]
     create_table :likes, id: false, primary_key: %i[user post] do |t|
       t.references :user
       t.references :post
-      t.datetime :deleted_at, index:true
+      t.datetime :deleted_at
     end
   end
 end
