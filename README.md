@@ -12,6 +12,7 @@ ToDo:
 - get 'user_id' from token
 - cover bad cases with unit-tests
 - cleanup repository: delete not used folders and files
+- set order desc for Post.id
 
 
 P.S.
