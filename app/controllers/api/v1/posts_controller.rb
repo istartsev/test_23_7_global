@@ -5,7 +5,7 @@ class Api::V1::PostsController < ApplicationController
   before_action :check_current_user, only: [:like, :dislike]
 
   def current_user
-    @current_user ||= User.find_by_id(params[:user_id])
+    @current_user = User.not_deleted.find_by_id(params[:user_id])
   end
 
   def check_current_user
