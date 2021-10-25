@@ -12,3 +12,9 @@ ToDo:
 - get 'user_id' from token
 - cover bad cases with unit-tests
 - cleanup repository: delete not used folders and files
+
+
+P.S.
+there are 2 indexes in Like which should be removed:
+- t.index ["post_id"], name: "index_likes_on_post_id"
+- t.index ["user_id"], name: "index_likes_on_user_id"
