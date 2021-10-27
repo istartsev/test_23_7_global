@@ -1,9 +1,9 @@
 class CreateLikes < ActiveRecord::Migration[6.1]
   def change
-    create_table :likes, id: false, primary_key: %i[:user_id :post_id] do |t|
-      t.references :user
+    create_table :likes do |t|
       t.references :post
-      t.datetime :deleted_at
+      t.references :user
     end
+    add_index(:likes, [:post_id, :user_id], unique: true)
   end
 end

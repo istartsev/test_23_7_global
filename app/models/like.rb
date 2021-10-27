@@ -1,7 +1,4 @@
 class Like < ApplicationRecord
-  include NotDeleted
-
-  self.primary_keys = :user_id, :post_id
-
+  belongs_to :post, counter_cache: true
   belongs_to :user
 end
