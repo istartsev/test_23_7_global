@@ -50,6 +50,7 @@ class Api::V1::PostsController < ApplicationController
   end
 
   # GET /posts/:post_id/like?user_id=<id>
+  # it would be better to use bulk operation here
   def is_liked
     like = current_post.likes.find_by(user_id: current_user.id)
     render json: like.present?, status: :ok
