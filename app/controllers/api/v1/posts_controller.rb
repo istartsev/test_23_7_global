@@ -39,10 +39,7 @@ class Api::V1::PostsController < ApplicationController
 
   # POST /posts/:post_id/like?user_id=<id>
   def like
-    current_post.likes.create(user_id: current_user.id)
-  rescue ActiveRecord::RecordNotUnique => e
-    logger.info e
-  ensure
+    current_post.likes.find_or_create_by(user_id: current_user.id)
     render json: current_post, status: :ok
   end
 
